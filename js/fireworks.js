@@ -19,9 +19,11 @@ let show2026Started = false;
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const isLowEnd = isMobile && (navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 2);
 
-const MAX_PARTICLES = isLowEnd ? 300 : 1000;
-const MAX_HEARTS = isLowEnd ? 2 : 5;
-const STAR_COUNT = isLowEnd ? 80 : 150;
+const MAX_PARTICLES = isLowEnd ? 150 : 1000;
+const MAX_HEARTS = 1;
+const STAR_COUNT = isLowEnd ? 50 : 150;
+
+let lastUsedImages = [];
 
 // MODO DEBUG: cambia a true para solo ver corazones
 const DEBUG_MODE = false;
@@ -62,8 +64,10 @@ class Particle {
         ctx.save();
         ctx.globalAlpha = this.alpha;
         ctx.fillStyle = this.color;
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = this.isStatic ? 20 : 5;
+        if (!isLowEnd) {
+            ctx.shadowColor = this.color;
+            ctx.shadowBlur = this.isStatic ? 20 : 5;
+        }
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.isStatic ? 5 : (this.isBig ? 4 : 2), 0, Math.PI * 2);
         ctx.fill();
@@ -426,7 +430,7 @@ class Rocket {
         if (hearts.length >= MAX_HEARTS) return;
 
         const colors = ['#ff69b4', '#ff1493', '#ff85c1', '#ffc0cb'];
-        const particleCount = isLowEnd ? 60 : 120;
+        const particleCount = isLowEnd ? 30 : 120;
 
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount;
@@ -438,13 +442,15 @@ class Rocket {
             particles.push(new Particle(this.x, this.y, color, velocity, true));
         }
 
-        const miniHeartCount = isLowEnd ? 10 : 20;
-        for (let i = 0; i < miniHeartCount; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * 80 + 40;
-            const x = this.x + Math.cos(angle) * distance;
-            const y = this.y + Math.sin(angle) * distance;
-            particles.push(new MiniHeart(x, y));
+        if (!isLowEnd) {
+            const miniHeartCount = 10;
+            for (let i = 0; i < miniHeartCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 80 + 40;
+                const x = this.x + Math.cos(angle) * distance;
+                const y = this.y + Math.sin(angle) * distance;
+                particles.push(new MiniHeart(x, y));
+            }
         }
 
         hearts.push(new Heart(this.x, this.y, images[this.imageIndex], this.imageIndex));
@@ -480,7 +486,7 @@ class Rocket {
             });
         });
 
-        const explosionParticles = isLowEnd ? 200 : 400;
+        const explosionParticles = isLowEnd ? 100 : 400;
         for (let i = 0; i < explosionParticles; i++) {
             const angle = Math.random() * Math.PI * 2;
             const velocity = {
@@ -492,7 +498,7 @@ class Rocket {
         }
 
         show2026Started = true;
-        const floatingCount = isLowEnd ? 8 : 15;
+        const floatingCount = isLowEnd ? 5 : 15;
         for (let i = 0; i < floatingCount; i++) {
             floatingHearts.push(new FloatingHeart());
         }
@@ -776,14 +782,27 @@ function startFireworks() {
                 const currentTime = i * fireworkInterval;
 
                 if (i >= heartsStartIndex) {
-                    let heartChance = 0.15;
+                    let heartChance = 0.12;
 
                     if (currentTime >= meImportasStart && currentTime <= meImportasEnd) {
-                        heartChance = 0.4;
+                        heartChance = 0.35;
                     }
 
-                    if (Math.random() < heartChance) {
-                        const randomImageIndex = Math.floor(Math.random() * 4);
+                    if (Math.random() < heartChance && hearts.length === 0) {
+                        let availableImages = [0, 1, 2, 3].filter(img => !lastUsedImages.includes(img));
+
+                        if (availableImages.length === 0) {
+                            lastUsedImages = [];
+                            availableImages = [0, 1, 2, 3];
+                        }
+
+                        const randomImageIndex = availableImages[Math.floor(Math.random() * availableImages.length)];
+                        lastUsedImages.push(randomImageIndex);
+
+                        if (lastUsedImages.length > 2) {
+                            lastUsedImages.shift();
+                        }
+
                         launchFirework(false, true, randomImageIndex);
                     } else {
                         launchFirework(false, false);
