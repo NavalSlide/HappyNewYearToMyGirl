@@ -16,6 +16,13 @@ let fireworkCount = 0;
 let canLaunchNext = true;
 let show2026Started = false;
 
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isLowEnd = isMobile && (navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 2);
+
+const MAX_PARTICLES = isLowEnd ? 300 : 1000;
+const MAX_HEARTS = isLowEnd ? 2 : 5;
+const STAR_COUNT = isLowEnd ? 80 : 150;
+
 // MODO DEBUG: cambia a true para solo ver corazones
 const DEBUG_MODE = false;
 
@@ -48,6 +55,10 @@ class Particle {
     }
 
     draw() {
+        if (this.alpha <= 0) return;
+
+        if (particles.length > MAX_PARTICLES) return;
+
         ctx.save();
         ctx.globalAlpha = this.alpha;
         ctx.fillStyle = this.color;
@@ -412,8 +423,10 @@ class Rocket {
     }
 
     createHeartExplosion() {
+        if (hearts.length >= MAX_HEARTS) return;
+
         const colors = ['#ff69b4', '#ff1493', '#ff85c1', '#ffc0cb'];
-        const particleCount = 120;
+        const particleCount = isLowEnd ? 60 : 120;
 
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount;
@@ -425,7 +438,8 @@ class Rocket {
             particles.push(new Particle(this.x, this.y, color, velocity, true));
         }
 
-        for (let i = 0; i < 20; i++) {
+        const miniHeartCount = isLowEnd ? 10 : 20;
+        for (let i = 0; i < miniHeartCount; i++) {
             const angle = Math.random() * Math.PI * 2;
             const distance = Math.random() * 80 + 40;
             const x = this.x + Math.cos(angle) * distance;
@@ -466,7 +480,8 @@ class Rocket {
             });
         });
 
-        for (let i = 0; i < 400; i++) {
+        const explosionParticles = isLowEnd ? 200 : 400;
+        for (let i = 0; i < explosionParticles; i++) {
             const angle = Math.random() * Math.PI * 2;
             const velocity = {
                 x: Math.cos(angle) * (Math.random() * 6 + 4),
@@ -477,7 +492,8 @@ class Rocket {
         }
 
         show2026Started = true;
-        for (let i = 0; i < 15; i++) {
+        const floatingCount = isLowEnd ? 8 : 15;
+        for (let i = 0; i < floatingCount; i++) {
             floatingHearts.push(new FloatingHeart());
         }
     }
@@ -488,6 +504,8 @@ const numberParticles = [];
 let numberCreated = false;
 
 function launchFirework(isBig = false, isHeart = false, imageIndex = 0) {
+    if (rockets.length > 3) return;
+
     const x = Math.random() * (canvas.width - 100) + 50;
     const targetY = Math.random() * (canvas.height * 0.4) + canvas.height * 0.1;
     rockets.push(new Rocket(x, targetY, isBig, isHeart, imageIndex));
