@@ -205,8 +205,7 @@ class Heart {
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        const step = isLowEnd ? 3 : 1;
-        for (let i = 0; i <= 360; i += step) {
+        for (let i = 0; i <= 360; i++) {
             const angle = (i * Math.PI) / 180;
             const x = 16 * Math.pow(Math.sin(angle), 3);
             const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
@@ -217,7 +216,7 @@ class Heart {
         ctx.clip();
 
         if (this.image.complete) {
-            const imgSize = isLowEnd ? 180 : 200;
+            const imgSize = 200;
             ctx.drawImage(this.image, -imgSize / 2 + this.offsetX, -imgSize / 2 + this.offsetY, imgSize, imgSize);
         }
 
@@ -230,7 +229,7 @@ class Heart {
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        for (let i = 0; i <= 360; i += step) {
+        for (let i = 0; i <= 360; i++) {
             const angle = (i * Math.PI) / 180;
             const x = 16 * Math.pow(Math.sin(angle), 3);
             const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
@@ -239,10 +238,8 @@ class Heart {
         }
         ctx.closePath();
         ctx.fillStyle = '#ff69b4';
-        if (!isLowEnd) {
-            ctx.shadowColor = '#ff69b4';
-            ctx.shadowBlur = 20;
-        }
+        ctx.shadowColor = '#ff69b4';
+        ctx.shadowBlur = 20;
         ctx.fill();
         ctx.restore();
 
@@ -253,7 +250,7 @@ class Heart {
 
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        for (let i = 0; i <= 360; i += step) {
+        for (let i = 0; i <= 360; i++) {
             const angle = (i * Math.PI) / 180;
             const x = 16 * Math.pow(Math.sin(angle), 3);
             const y = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
@@ -262,10 +259,8 @@ class Heart {
         }
         ctx.closePath();
         ctx.fillStyle = '#ff1493';
-        if (!isLowEnd) {
-            ctx.shadowColor = '#ff1493';
-            ctx.shadowBlur = 30;
-        }
+        ctx.shadowColor = '#ff1493';
+        ctx.shadowBlur = 30;
         ctx.fill();
         ctx.restore();
     }
@@ -273,13 +268,13 @@ class Heart {
     update() {
         if (this.growing) {
             if (this.scale < this.maxScale) {
-                this.scale += isLowEnd ? 4 : 3;
-                this.alpha = Math.min(1, this.alpha + (isLowEnd ? 0.06 : 0.04));
+                this.scale += 3;
+                this.alpha = Math.min(1, this.alpha + 0.04);
             } else {
                 this.growing = false;
             }
         } else {
-            this.alpha -= isLowEnd ? 0.008 : 0.005;
+            this.alpha -= 0.005;
         }
     }
 }
@@ -435,7 +430,7 @@ class Rocket {
         if (hearts.length >= MAX_HEARTS) return;
 
         const colors = ['#ff69b4', '#ff1493', '#ff85c1', '#ffc0cb'];
-        const particleCount = isLowEnd ? 70 : 120;
+        const particleCount = isLowEnd ? 80 : 120;
 
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount;
@@ -447,7 +442,7 @@ class Rocket {
             particles.push(new Particle(this.x, this.y, color, velocity, true));
         }
 
-        const miniHeartCount = isLowEnd ? 12 : 20;
+        const miniHeartCount = isLowEnd ? 15 : 20;
         for (let i = 0; i < miniHeartCount; i++) {
             const angle = Math.random() * Math.PI * 2;
             const distance = Math.random() * 80 + 40;
