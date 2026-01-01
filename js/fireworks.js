@@ -706,7 +706,6 @@ const lyricsDisplay = document.getElementById('lyrics-display');
 const replayScreen = document.getElementById('replay-screen');
 const replayBtn = document.getElementById('replay-btn');
 
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const initialVolume = isMobile ? 0.3 : 0.5;
 const targetVolume = 0.5;
 
